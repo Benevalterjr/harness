@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 
-from harness_core import Harness, MiniFaiss, Tokenizer, TurboQuant, evaluate_harness
+from harness.core import Harness, MiniFaiss, Tokenizer, TurboQuant, evaluate_harness
 
 
 class EchoLLM:

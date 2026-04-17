@@ -1,6 +1,6 @@
 import numpy as np
 
-from harness_core import (
+from harness.core import (
     Harness,
     MiniFaiss,
     Tokenizer,
