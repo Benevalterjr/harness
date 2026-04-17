@@ -1,39 +1,48 @@
 # harness
 
-Protótipo de harness para avaliação de LLM com:
-- recuperação vetorial simplificada (`MiniFaiss`)
-- quantização (`TurboQuant`)
-- geração com Gemini
+Harness de avaliação de LLM com recuperação vetorial, quantização e benchmark automatizado.
 
-## Diagnóstico atual
+## Estrutura
 
-### O que funciona
-- Estrutura didática no notebook (`HARNESS.ipynb`) com pipeline completo de ingestão, recuperação e geração.
-- Embedding real via `models/gemini-embedding-001` já integrado.
-- Quantização e cálculo de erro/compressão implementados.
-- Estratégia básica de retry para limite de taxa (429) durante ingestão.
+- `harness_core.py`: classes principais (`MiniFaiss`, `TurboQuant`, `Harness`) e métricas (`Recall@K`, `MRR`, latência, custo por consulta).
+- `providers.py`: integração com Gemini (configuração de API, embedder e LLM).
+- `scripts/run_evaluation.py`: execução automatizada de benchmark offline/reproduzível.
+- `tests/test_harness_core.py`: testes unitários.
+- `HARNESS.ipynb`: notebook de exploração usando os módulos Python.
 
-### O que não funcionava (e foi ajustado)
-- **Chave de API hardcoded** no notebook (risco de segurança).
-- **Incompatibilidade de dimensão** entre consulta (128) e índice vetorial (768), quebrando `harness.run(...)`.
-- Falta de validação de dimensão no índice vetorial, o que dificulta diagnóstico de erro.
+## Ambiente reproduzível
 
-## Melhorias aplicadas
-- Remoção de chave fixa no código; agora usa `GEMINI_API_KEY` do ambiente.
-- `MiniFaiss` padronizado para dimensão 768 com validação explícita.
-- `Harness.embed()` atualizado para usar embedding real (`embed_text`) em vez de vetor aleatório.
-- Fallback de modelo atualizado para nome atual (`models/gemini-2.5-flash`).
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Como executar
+## Configuração Gemini
 
 ```bash
 export GEMINI_API_KEY="sua_chave"
 ```
 
-Depois rode as células do `HARNESS.ipynb` em ordem.
+## Testes
 
-## Próximos passos recomendados
-- Extrair classes do notebook para módulos `.py` e adicionar testes unitários.
-- Versionar dependências (`requirements.txt` ou `pyproject.toml`).
-- Substituir `!pip install` dentro do notebook por ambiente reproduzível.
-- Adicionar métricas de avaliação (Recall@K, MRR, latência, custo por consulta) em execução automatizada.
+```bash
+pytest -q
+```
+
+## Benchmark automatizado
+
+```bash
+python scripts/run_evaluation.py
+```
+
+Saída (JSON):
+- `recall_at_k`
+- `mrr_at_k`
+- `latency_s`
+- `cost_per_query`
+
+## Observações
+
+- O notebook não instala mais dependências via `!pip install`; o setup fica centralizado em `requirements.txt`.
+- Para CI, recomenda-se executar `pytest -q` e `python scripts/run_evaluation.py` em pipeline.
